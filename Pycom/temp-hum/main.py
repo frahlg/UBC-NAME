@@ -16,8 +16,6 @@ def send_env_data():
         while not result.is_valid():
             time.sleep(.5)
             result = th.read()
-        #pybytes.send_signal(1, result.temperature) # noqa F821
-        #pybytes.send_signal(2, result.humidity) # noqa F821
         print('Temp:', result.temperature)
         print('RH:', result.humidity)
         time.sleep(10)
