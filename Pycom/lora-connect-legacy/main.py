@@ -2,6 +2,11 @@ import socket
 import time
 import ubinascii
 from network import LoRa
+from machine import Pin
+from dth import DTH
+import _thread
+import cayenneLPP
+
 
 
 # Initialise LoRa in LORAWAN mode.
@@ -24,26 +29,48 @@ i = 1
 while not lora.has_joined():
     i = i +1
     print(i)
-    time.sleep(2.5)
+    time.sleep(3)
     print('Not yet joined...')
 
-# create a LoRa socket
+
+print('Joined !!!')
+
+
+
+
+
+# create socket to be used for LoRa communication
 s = socket.socket(socket.AF_LORA, socket.SOCK_RAW)
 
-# set the LoRaWAN data rate
-s.setsockopt(socket.SOL_LORA, socket.SO_DR, 5)
+# configure data rate. 3 = US (not sure why)
 
+s.setsockopt(socket.SOL_LORA, socket.SO_DR, 3)
 # make the socket blocking
 # (waits for the data to be sent and for the 2 receive windows to expire)
 s.setblocking(True)
 
-# send some data
-s.send(bytes([0x01, 0x02, 0x03]))
+lpp = cayenneLPP.CayenneLPP(size = 100, sock = s)
 
-# make the socket non-blocking
-# (because if there's no data received it will block forever...)
-s.setblocking(False)
 
-# get any data received (if any...)
-data = s.recv(64)
-print(data)
+# Type 0 = dht11
+# Type 1 = dht22
+
+th = DTH(Pin('P23', mode=Pin.OPEN_DRAIN), 0)
+time.sleep(2)
+
+def send_env_data():
+    while True:
+        result = th.read()
+        while not result.is_valid():
+            time.sleep(1)
+            result = th.read()
+        print('Temp:', result.temperature)
+        print('RH:', result.humidity)
+        lpp.add_temperature(result.temperature)
+        lpp.add_temperature(result.humidity)
+        lpp.send(reset_payload = True)
+
+        time.sleep(30)
+
+
+_thread.start_new_thread(send_env_data, ())
