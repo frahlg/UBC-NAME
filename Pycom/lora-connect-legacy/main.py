@@ -37,8 +37,6 @@ print('Joined !!!')
 
 
 
-
-
 # create socket to be used for LoRa communication
 s = socket.socket(socket.AF_LORA, socket.SOCK_RAW)
 
