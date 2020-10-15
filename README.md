@@ -1,2 +1,4 @@
-# MECH550N
- Special Topics course in Marine Engineering and Data Analysis
+# UBC NAME
+
+Repository for Data Analysis and IoT in courses in the UBC Naval Architecture and Marine Engineering.
+
